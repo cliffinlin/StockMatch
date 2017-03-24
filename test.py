@@ -23,6 +23,9 @@ sns.set_style('whitegrid',{'font.sans-serif':['simhei','Arial']})
 start = "2016-1-1"
 end = date.today().strftime("%Y-%m-%d")
 
+code1 = '601009'
+code2 = '601818'
+
 stock1 = ts.get_hist_data('601009', start, end)[::-1]
 stock2 = ts.get_hist_data('601818', start, end)[::-1]
 
@@ -36,7 +39,7 @@ result = (sm.OLS(y,X)).fit()
 print(result.summary())
 
 fig, ax = plt.subplots(figsize=(8,6))
-ax.plot(x, y, 'o', label="data")
+ax.plot(x, y, 'o', label="data" + " " + code1 + " " + code2)
 ax.plot(x, result.fittedvalues, 'r', label="OLS")
 ax.legend(loc='best')
 
