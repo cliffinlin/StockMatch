@@ -22,7 +22,7 @@ for row in industry_classified.itertuples():
         industry = row.c_name
     else:
         print("#" + industry + ":")
-        print("stock_dict = \\"),
+        print("code_name_dict = \\"),
         print(industry_dict)
 
         industry_list.append(row.c_name)

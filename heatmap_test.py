@@ -31,19 +31,19 @@ price_type = "open"
 #             '601988': '中国银行', '601998': '中信银行'}
 
 #船舶制造:
-#stock_dict = \
+#code_name_dict = \
 #{'600072': '中船科技', '600150': '中国船舶', '600685': '中船防务', '601890': '亚星锚链', '601989': '中国重工', '002608': '*ST舜船', '300008': '天海防务', '300123': '太阳鸟'}
 ##[('中船科技,中船防务', 0.0012272829314679322)]
 #飞机制造:
-stock_dict = \
+code_name_dict = \
 {'600038': '中直股份', '600118': '中国卫星', '600316': '洪都航空', '600343': '航天动力', '600372': '中航电子', '600391': '成发科技', '600879': '航天电子', '600893': '中航动力', '000738': '中航动控', '000768': '中航飞机', '000901': '航天科技', '002023': '海特高新', '002111': '威海广泰', '300424': '航新科技'}
-#[('中直股份,洪都航空', 0.017762278983374419), ('中航动控,海特高新', 0.026967156523639752), ('中国卫星,洪都航空', 0.028472923237573659)]
+code_stock_dict = {}
 
-code_list = list(stock_dict.keys());
-name_list = list(stock_dict.values());
-
-n = len(stock_dict)
+n = len(code_name_dict)
 pvalue_matrix = np.ones((n, n))
+
+code_list = list(code_name_dict.keys())
+name_list = list(code_name_dict.values())
 
 matched_code_dict = {}
 matched_name_dict = {}
@@ -51,10 +51,35 @@ matched_name_dict = {}
 matched_code_list = []
 matched_name_list = []
 
+
+max_data_len = 0
+for code in code_name_dict:
+    stock = ts.get_hist_data(code, start, end)[::-1]
+    code_stock_dict[code] = stock
+    
+    data_len = len(list(stock[price_type]))
+    if data_len > max_data_len:
+        max_data_len = data_len
+
+#max_data_len = 0
+#for i in range(len(code_list)):
+#    stock = ts.get_hist_data(code_list[i], start, end)[::-1]
+#    code_stock_dict.append(stock)
+#    data_len = len(list(stock[price_type]))
+#    if data_len > max_data_len:
+#        max_data_len = data_len
+
+
+#for i in range(len(stock_list)):
+#    print(i)
+#    stock = stock_list[i]
+#    if len(stock[price_type]) != max_data_len:
+#        del(stock_list[i])
+
 for i in range(n):
     for j in range(i+1, n):
-        stock1 = ts.get_hist_data(code_list[i], start, end)[::-1]
-        stock2 = ts.get_hist_data(code_list[j], start, end)[::-1]
+        stock1 = code_stock_dict[code_list[i]]
+        stock2 = code_stock_dict[code_list[j]]
         
         data_len1 = len(stock1)
         data_len2 = len(stock2)
