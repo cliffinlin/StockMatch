@@ -18,25 +18,16 @@ from statsmodels.tsa.stattools import coint
 def zscore(series):
     return (series - series.mean()) / np.std(series)
 
+##金融行业:
+code_name_dict = \
+{'600000': '浦发银行', '600015': '华夏银行', '600016': '民生银行', '600030': '中信证券', '600036': '招商银行', '600109': '国金证券', '600291': '西水股份', '600369': '西南证券', '600643': '爱建集团', '600705': '中航资本', '600816': '安信信托', '600830': '香溢融通', '600837': '海通证券', '600958': '东方证券', '600999': '招商证券', '601009': '南京银行', '601099': '太平洋', '601166': '兴业银行', '601169': '北京银行', '601198': '东兴证券', '601288': '农业银行', '601318': '中国平安', '601328': '交通银行', '601336': '新华保险', '601377': '兴业证券', '601398': '工商银行', '601555': '东吴证券', '601601': '中国太保', '601628': '中国人寿', '601688': '华泰证券', '601788': '光大证券', '601818': '光大银行', '601901': '方正证券', '601939': '建设银行', '601988': '中国银行', '601998': '中信银行', '000001': '平安银行', '000166': '申万宏源', '000415': '渤海金控', '000563': '陕国投Ａ', '000686': '东北证券', '000712': '锦龙股份', '000728': '国元证券', '000750': '国海证券', '000776': '广发证券', '000783': '长江证券', '002142': '宁波银行', '002500': '山西证券', '002673': '西部证券', '002736': '国信证券'}
+
 sns.set_style('whitegrid',{'font.sans-serif':['simhei','Arial']})
 
 start = "2016-1-1"
 end = date.today().strftime("%Y-%m-%d")
 price_type = "open"
 
-#stock_dict = {'600000': '浦发银行', '600015': '华夏银行', '600016': '民生银行', 
-#             '600036': '招商银行', '601009': '南京银行', '601166': '兴业银行',
-#             '601169': '北京银行', '601288': '农业银行', '601328': '交通银行',
-#             '601398': '工商银行', '601818': '光大银行', '601939': '建设银行',
-#             '601988': '中国银行', '601998': '中信银行'}
-
-#船舶制造:
-#code_name_dict = \
-#{'600072': '中船科技', '600150': '中国船舶', '600685': '中船防务', '601890': '亚星锚链', '601989': '中国重工', '002608': '*ST舜船', '300008': '天海防务', '300123': '太阳鸟'}
-##[('中船科技,中船防务', 0.0012272829314679322)]
-#飞机制造:
-code_name_dict = \
-{'600038': '中直股份', '600118': '中国卫星', '600316': '洪都航空', '600343': '航天动力', '600372': '中航电子', '600391': '成发科技', '600879': '航天电子', '600893': '中航动力', '000738': '中航动控', '000768': '中航飞机', '000901': '航天科技', '002023': '海特高新', '002111': '威海广泰', '300424': '航新科技'}
 code_stock_dict = {}
 
 n = len(code_name_dict)
@@ -51,35 +42,28 @@ matched_name_dict = {}
 matched_code_list = []
 matched_name_list = []
 
-
+print("loading stock...")
 max_data_len = 0
 for code in code_name_dict:
     stock = ts.get_hist_data(code, start, end)[::-1]
     code_stock_dict[code] = stock
+    print(code_name_dict[code], len(stock))
     
     data_len = len(list(stock[price_type]))
     if data_len > max_data_len:
         max_data_len = data_len
 
-#max_data_len = 0
-#for i in range(len(code_list)):
-#    stock = ts.get_hist_data(code_list[i], start, end)[::-1]
-#    code_stock_dict.append(stock)
-#    data_len = len(list(stock[price_type]))
-#    if data_len > max_data_len:
-#        max_data_len = data_len
-
-
-#for i in range(len(stock_list)):
-#    print(i)
-#    stock = stock_list[i]
-#    if len(stock[price_type]) != max_data_len:
-#        del(stock_list[i])
+print("max_data_len =" , max_data_len)
 
 for i in range(n):
     for j in range(i+1, n):
-        stock1 = code_stock_dict[code_list[i]]
-        stock2 = code_stock_dict[code_list[j]]
+        code1 = code_list[i]
+        name1 = name_list[i]
+        stock1 = code_stock_dict[code1]
+        
+        code2 = code_list[j]
+        name2 = name_list[j]
+        stock2 = code_stock_dict[code2]
         
         data_len1 = len(stock1)
         data_len2 = len(stock2)
@@ -87,15 +71,15 @@ for i in range(n):
             print(data_len1, data_len2)
             continue
         
-        result = sm.tsa.stattools.coint(stock1[price_type], stock2[price_type])
+        result = coint(stock1[price_type], stock2[price_type])
         pvalue = result[1]
         pvalue_matrix[i, j] = pvalue
         
         print(name_list[i], name_list[j], pvalue)
         
         if pvalue < 0.05:
-            matched_code_dict[code_list[i] + ',' + code_list[j]] = pvalue
-            matched_name_dict[name_list[i] + ',' + name_list[j]] = pvalue
+            matched_code_dict[code1 + ',' + code2] = pvalue
+            matched_name_dict[name1 + ',' + name2] = pvalue
 
 matched_code_list = sorted(matched_code_dict.items(), key=operator.itemgetter(1))
 matched_name_list = sorted(matched_name_dict.items(), key=operator.itemgetter(1))
