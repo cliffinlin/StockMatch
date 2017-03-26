@@ -21,7 +21,8 @@ for row in industry_classified.itertuples():
     if row.c_name in industry_list:
         industry = row.c_name
     else:
-        print(industry, ":")
+        print("#" + industry + ":")
+        print("stock_dict = \\"),
         print(industry_dict)
 
         industry_list.append(row.c_name)
